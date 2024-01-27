@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+<<<<<<< HEAD
+=======
+    <color name="green">#37B66F</color>
+    <color name="light_grey">#F8F8F8</color>
+    <color name="light_green">#E8F6E8</color>
+
+>>>>>>> 5a77e1a (Signup rider by email and password, finished phone signup design, finished login design)
 </resources>

@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">RideWave</string>
+<<<<<<< HEAD
+=======
+    <string name="signup_now">Signup now</string>
+    <string name="create_account">Create Your Account</string>
+    <string name="email_address">Email address</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="or">or</string>
+    <string name="signup_phone_number">Signup with phone number</string>
+    <string name="login_phone_number">Login with phone number</string>
+    <string name="login">Login</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="do_you_have_account">Don\'t have an account? Signup now</string>
+    <string name="logging_in">Loggin in</string>
+    <string name="next">Next</string>
+    <string name="hello_text">Hello, nice to meet you!</string>
+    <string name="most_comfort_text">Most comfort journy for you.</string>
+    <string name="enter_phone_number">Enter Your Mobile Number</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="back">Back</string>
+    <string name="creating_account">Creating your account</string>
+>>>>>>> 5a77e1a (Signup rider by email and password, finished phone signup design, finished login design)
 </resources>
