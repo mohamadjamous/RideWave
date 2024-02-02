@@ -6,8 +6,7 @@
     </style>
 
     <style name="Theme.RideWave" parent="Base.Theme.RideWave" />
-<<<<<<< HEAD
-=======
+
 
 
     <style name="greenButtonStyle" parent="Widget.MaterialComponents.Button">
@@ -35,5 +34,4 @@
     </style>
 
 
->>>>>>> 5a77e1a (Signup rider by email and password, finished phone signup design, finished login design)
 </resources>

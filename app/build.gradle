@@ -1,10 +1,9 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-<<<<<<< HEAD
-=======
     id 'com.google.gms.google-services'
->>>>>>> 5a77e1a (Signup rider by email and password, finished phone signup design, finished login design)
+
+
 }
 
 android {
@@ -21,53 +20,68 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-<<<<<<< HEAD
+
     buildTypes {
         release {
             minifyEnabled false
-=======
-    viewBinding {
-        enabled = true
-    }
 
-    buildTypes {
-        release {
-            minifyEnabled true
->>>>>>> 5a77e1a (Signup rider by email and password, finished phone signup design, finished login design)
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            viewBinding {
+                enabled = true
+            }
+
+            buildTypes {
+                release {
+                    minifyEnabled true
+                    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                }
+            }
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+            kotlinOptions {
+                jvmTarget = '1.8'
+            }
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+
+    dependencies {
+
+        implementation libs.androidx.core.ktx
+        implementation libs.androidx.appcompat
+        implementation libs.material
+        implementation libs.androidx.activity
+        implementation libs.androidx.constraintlayout
+
+        testImplementation libs.junit
+        androidTestImplementation libs.androidx.junit
+        androidTestImplementation libs.androidx.espresso.core
+
+        implementation libs.firebase.auth
+        implementation libs.firebase.firestore.ktx
+        implementation libs.firebase.firestore
+        testImplementation libs.junit
+        androidTestImplementation libs.androidx.junit
+        androidTestImplementation libs.androidx.espresso.core
+
+        implementation platform('com.google.firebase:firebase-bom:32.7.1')
+        implementation 'com.google.firebase:firebase-analytics'
+
+        implementation "com.hbb20:ccp:2.7.1"
+
+        //for phone number check
+        implementation group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '8.4.2'
+
+
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
+
 }
 
 dependencies {
-
-    implementation libs.androidx.core.ktx
+    implementation libs.firebase.auth
+    implementation libs.firebase.firestore
     implementation libs.androidx.appcompat
     implementation libs.material
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
-<<<<<<< HEAD
-    testImplementation libs.junit
-    androidTestImplementation libs.androidx.junit
-    androidTestImplementation libs.androidx.espresso.core
-=======
-    implementation libs.firebase.auth
-    implementation libs.firebase.firestore.ktx
-    implementation libs.firebase.firestore
-    testImplementation libs.junit
-    androidTestImplementation libs.androidx.junit
-    androidTestImplementation libs.androidx.espresso.core
-
-    implementation platform('com.google.firebase:firebase-bom:32.7.1')
-    implementation 'com.google.firebase:firebase-analytics'
-
-    implementation "com.hbb20:ccp:2.7.1"
->>>>>>> 5a77e1a (Signup rider by email and password, finished phone signup design, finished login design)
 }
