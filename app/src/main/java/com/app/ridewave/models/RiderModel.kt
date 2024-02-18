@@ -1,8 +1,8 @@
 package com.app.ridewave.models
 
-data class RiderModel(var id: String, var email: String) {
+data class RiderModel(var id: String, var email: String, var name: String) {
 
-    constructor(id: String, email: String, phoneNumber: String) : this(id, email) {
+    constructor(id: String, email: String, phoneNumber: String, name:String) : this(id, email, name) {
         this.phoneNumber = phoneNumber
     }
 

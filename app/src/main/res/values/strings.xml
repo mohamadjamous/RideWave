@@ -2,7 +2,7 @@
     <string name="app_name">RideWave</string>
 
     <string name="signup_now">Signup now</string>
-    <string name="create_account">Create Your Account</string>
+    <string name="create_rider_account">Create Rider Account</string>
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm Password</string>
@@ -28,5 +28,13 @@
     <string name="otp_code">OTP Code</string>
     <string name="enter_email">Enter your email address</string>
     <string name="send">Send</string>
+    <string name="name">Name</string>
+    <string name="driver_signup_text">Want to be a Driver? Signup now</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="driver_registration">Driver Registration</string>
+    <string name="upload_car_image">Please upload an image of your transportation method</string>
+    <string name="provide_car_description">Please provide a description of your transportation method</string>
+    <string name="description">Description</string>
+    <string name="signup">Signup</string>
 
 </resources>

@@ -4,9 +4,11 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.app.ridewave.R
 import com.app.ridewave.databinding.ActivityResetPasswordBinding
 import com.app.ridewave.utils.CustomProgressDialog
+import com.app.ridewave.viewmodels.RiderViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.regex.Pattern
 
@@ -15,12 +17,15 @@ class ResetPasswordActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityResetPasswordBinding
     lateinit var dialog: AlertDialog
+    lateinit var viewModel : RiderViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResetPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+        viewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
 
         binding.send.setOnClickListener {
             sendPasswordResetEmail(binding.email.text.toString())
@@ -45,24 +50,22 @@ class ResetPasswordActivity : AppCompatActivity() {
             return
         }
 
-
-        // Get the Firebase Auth instance
-        val firebaseAuth = FirebaseAuth.getInstance()
-
         initializeDialog(getString(R.string.loading))
         showDialog(true)
-        // Send the password reset email
-        firebaseAuth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Password reset email sent", Toast.LENGTH_SHORT).show()
-                    // The password reset email has been sent
-                } else {
-                    // The password reset email could not be sent
-                    Toast.makeText(this, "Error sending email", Toast.LENGTH_SHORT).show()
-                }
-                showDialog(false)
+
+        viewModel.sendResetPasswordEmail(email).observe(this) {
+
+            if (it.equals("success"))
+            {
+                Toast.makeText(this, "Email sent successfully", Toast.LENGTH_SHORT).show()
+            }else if (it.equals("error"))
+            {
+                Toast.makeText(this, "Error sending email", Toast.LENGTH_SHORT).show()
             }
+
+            showDialog(false)
+        }
+
     }
 
 

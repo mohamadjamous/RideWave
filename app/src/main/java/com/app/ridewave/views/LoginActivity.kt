@@ -2,19 +2,26 @@ package com.app.ridewave.views
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.app.ridewave.R
 import com.app.ridewave.databinding.ActivityLoginBinding
 import com.app.ridewave.utils.CustomProgressDialog
 import com.app.ridewave.utils.Helper
 import com.app.ridewave.viewmodels.RiderViewModel
-import com.google.firebase.auth.PhoneAuthProvider
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
@@ -30,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
     lateinit var dialog: android.app.AlertDialog
     lateinit var verificationId: String
     lateinit var phoneNumber: String
+
     /*
      neutral phone number page state
      0 - neutral
@@ -45,10 +53,21 @@ class LoginActivity : AppCompatActivity() {
 
 
 
-
         viewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
         context = this
 
+        binding.driverSignupText.setOnClickListener{
+            startActivity(Intent(this, DriverSignupActivity::class.java))
+            finish()
+        }
+
+        // Set the text and style
+        boldAndColorSubstring(
+            binding.driverSignupText,
+            "Want to be a Driver? Signup now",
+            "Driver",
+            R.color.green
+        )
 
         //check if rider id exists
         println("UserIdValue: " + Helper.getRiderId(context))
@@ -71,7 +90,8 @@ class LoginActivity : AppCompatActivity() {
             createRiderAccount(
                 binding.emailSignup.text.toString(),
                 binding.passwordSignup.text.toString(),
-                binding.confirmPassword.text.toString()
+                binding.confirmPassword.text.toString(),
+                binding.riderName.text.toString(),
             )
         }
 
@@ -140,20 +160,21 @@ class LoginActivity : AppCompatActivity() {
         initializeDialog(getString(R.string.verifying_otp_code))
         showDialog(true)
 
-        viewModel.verifyOTPCode(verificationId, otp, phoneNumber, phoneNumberPageState).observe(this)
-        {
-            val response: String = it
-            val message: String = response.split(":")[0]
-            val content: String = response.split(":")[1]
+        viewModel.verifyOTPCode(verificationId, otp, phoneNumber, phoneNumberPageState)
+            .observe(this)
+            {
+                val response: String = it
+                val message: String = response.split(":")[0]
+                val content: String = response.split(":")[1]
 
-            if (message == "success") {
-                saveRiderId(message)
-            } else {
-                Toast.makeText(this, content, Toast.LENGTH_SHORT).show()
+                if (message == "success") {
+                    saveRiderId(message)
+                } else {
+                    Toast.makeText(this, content, Toast.LENGTH_SHORT).show()
+                }
+
+                showDialog(false)
             }
-
-            showDialog(false)
-        }
     }
 
     fun sendOTPCode() {
@@ -347,7 +368,7 @@ class LoginActivity : AppCompatActivity() {
      * @param confirmPassword The confirmation password for the rider account.
      *
      */
-    fun createRiderAccount(email: String, password: String, confirmPassword: String) {
+    fun createRiderAccount(email: String, password: String, confirmPassword: String, name: String) {
 
         // Check if the email address is a valid email address
         val emailPattern = Pattern.compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,64}")
@@ -391,7 +412,7 @@ class LoginActivity : AppCompatActivity() {
         initializeDialog(getString(R.string.creating_account))
         showDialog(true)
 
-        viewModel.createAccountEmailPassword(email, password).observe(this) {
+        viewModel.createAccountEmailPassword(email, password, name).observe(this) {
 
             if (it != null) {
 
@@ -524,7 +545,7 @@ class LoginActivity : AppCompatActivity() {
 
     fun saveRiderId(id: String) {
 
-        Helper.saveRiderId(id, context)
+        Helper.saveRiderId(id, "0", context)
         startActivity(Intent(this, HomeActivity::class.java))
         finish()
     }
@@ -581,6 +602,39 @@ class LoginActivity : AppCompatActivity() {
             showDialog(false)
         }
 
+    }
+
+    fun boldAndColorSubstring(
+        textView: TextView,
+        text: String,
+        wordToBold: String,
+        color: Int
+    ) {
+        val spannableString = SpannableString(text)
+
+        val startIndex = text.indexOf(wordToBold)
+        val endIndex = startIndex + wordToBold.length
+
+        // Bold the word
+        spannableString.setSpan(
+            StyleSpan(Typeface.BOLD),
+            startIndex,
+            endIndex,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // Change the color of the word
+        spannableString.setSpan(
+            // Set the color of the word
+            ForegroundColorSpan(ContextCompat.getColor(textView.context, color)),
+
+            startIndex,
+            endIndex,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // Set the spannable string to the TextView
+        textView.text = spannableString
     }
 
 

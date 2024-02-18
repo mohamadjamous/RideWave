@@ -1,6 +1,7 @@
 package com.app.ridewave.viewmodels
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.ridewave.models.RiderModel
@@ -18,7 +19,8 @@ class RiderViewModel : ViewModel() {
 
     lateinit var token: ForceResendingToken
 
-    fun createAccountEmailPassword(email: String, password: String): MutableLiveData<RiderModel> {
+    fun createAccountEmailPassword(email: String, password: String, name :String): MutableLiveData<RiderModel> {
+
         // Create a Firebase Auth instance
         val auth = FirebaseAuth.getInstance()
         val mutableLiveData = MutableLiveData<RiderModel>()
@@ -30,7 +32,7 @@ class RiderViewModel : ViewModel() {
         // Create a reference to the users collection
         val usersCollection = db.collection(Constants.RIDER_COLLECTION)
 
-        // Query the users collection for the user with the given phone number
+        // Query the users collection for the user with the given email address
         usersCollection.whereEqualTo("email", email).get()
             .addOnSuccessListener { querySnapshot ->
 
@@ -47,7 +49,8 @@ class RiderViewModel : ViewModel() {
                                 val user = auth.currentUser
 
                                 if (user != null) {
-                                    val riderModel = RiderModel(user.uid, email)
+                                    val riderModel = RiderModel(user.uid, email, name)
+
                                     // Create a user document in Firestore
                                     db.collection(Constants.RIDER_COLLECTION).add(riderModel)
                                         .addOnCompleteListener { task1 ->
@@ -74,7 +77,7 @@ class RiderViewModel : ViewModel() {
 
                     // The user exists
                     // Handle the error
-                    mutableLiveData.value = RiderModel("account_exists", "")
+                    mutableLiveData.value = RiderModel("account_exists", "", "")
                 }
             }
             .addOnFailureListener { exception ->
@@ -397,6 +400,29 @@ class RiderViewModel : ViewModel() {
 
         // Start the phone number verification process
         PhoneAuthProvider.verifyPhoneNumber(options)
+        return mutableLiveData
+    }
+
+
+    fun sendResetPasswordEmail(email: String): MutableLiveData<String> {
+        var mutableLiveData: MutableLiveData<String> = MutableLiveData()
+        val firebaseAuth = FirebaseAuth.getInstance()
+
+
+        // Send the password reset email
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+
+                    mutableLiveData.value = "success"
+
+                } else {
+
+                    mutableLiveData.value = "error"
+                }
+
+            }
+
         return mutableLiveData
     }
 

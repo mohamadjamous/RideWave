@@ -27,9 +27,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
+        android:visibility="gone"
         android:background="@color/white"
         app:cardCornerRadius="10dp"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -169,7 +169,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        >
 
 
         <LinearLayout
@@ -191,7 +191,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="@string/create_account"
+                    android:text="@string/create_rider_account"
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -215,7 +215,11 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp">
+                android:layout_marginRight="10dp"
+                android:layout_margineEnd="10dp"
+                android:layout_margineStart="10dp"
+                android:layout_margineLeft="10dp"
+                >
 
                 <View
                     android:layout_width="match_parent"
@@ -235,6 +239,27 @@
 
 
             </RelativeLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginRight="15dp"
+                android:drawablePadding="5dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rider_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="top|left"
+                    android:hint="@string/name"
+                    android:inputType="textCapWords" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
 
             <com.google.android.material.textfield.TextInputLayout
@@ -308,7 +333,7 @@
                 style="@style/greenButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
@@ -320,13 +345,26 @@
                 style="@style/outlineButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginBottom ="20dp"
+                android:layout_marginBottom ="10dp"
                 android:text="@string/back" />
+
+
+            <TextView
+                android:id="@+id/driver_signup_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:gravity="center"
+                android:text="@string/driver_signup_text"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
         </LinearLayout>
@@ -471,7 +509,6 @@
         android:layout_margin="30dp"
         android:background="@color/white"
         app:cardCornerRadius="10dp"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

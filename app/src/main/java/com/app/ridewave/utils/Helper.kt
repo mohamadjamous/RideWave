@@ -1,12 +1,13 @@
 package com.app.ridewave.utils
 
 import android.content.Context
+import android.content.Intent
 import android.preference.PreferenceManager
 
 object Helper {
 
 
-    fun saveRiderId(riderId: String, context: Context) {
+    fun saveRiderId(id: String, userType: String, context: Context) {
         // Get the shared preferences object
         val sharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context)
@@ -15,7 +16,8 @@ object Helper {
         val editor = sharedPreferences.edit()
 
         // Put the user ID in the shared preferences object
-        editor.putString(Constants.RIDER_ID, riderId)
+        editor.putString(Constants.USER_ID, id)
+        editor.putString(Constants.USER_TYPE, userType)
 
         // Commit the changes to the shared preferences object
         editor.apply()
@@ -26,10 +28,19 @@ object Helper {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         // Get the user ID from the shared preferences object
-        val riderId: String = sharedPreferences.getString(Constants.RIDER_ID, null).toString()
+        val riderId: String = sharedPreferences.getString(Constants.USER_TYPE, null).toString()
 
         // Return the user ID
         return riderId
+    }
+
+    fun restartApp(context: Context) {
+        val packageManager = context.packageManager
+        val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+        val componentName = intent!!.component
+        val mainIntent = Intent.makeRestartActivityTask(componentName)
+        context.startActivity(mainIntent)
+        Runtime.getRuntime().exit(0)
     }
 
 
