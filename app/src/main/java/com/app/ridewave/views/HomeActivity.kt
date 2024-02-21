@@ -1,5 +1,6 @@
 package com.app.ridewave.views
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,11 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+
+        binding.profileCard.setOnClickListener{
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
 
 
     }

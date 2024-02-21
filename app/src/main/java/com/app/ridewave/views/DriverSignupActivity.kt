@@ -44,7 +44,7 @@ class DriverSignupActivity : AppCompatActivity() {
 
         context = this
         viewModel = ViewModelProvider(this).get(DriverViewModel::class.java)
-        binding.close.setOnClickListener { Helper.restartApp(context) }
+        binding.close.setOnClickListener { Helper.restart(this) }
         binding.signup.setOnClickListener {
             createDriverAccount(
                 binding.emailAddress.text.toString(),

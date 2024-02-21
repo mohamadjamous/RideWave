@@ -36,5 +36,9 @@
     <string name="provide_car_description">Please provide a description of your transportation method</string>
     <string name="description">Description</string>
     <string name="signup">Signup</string>
+    <string name="logout">Log out</string>
+    <string name="delete_my_account">Delete my account</string>
+    <string name="vehicle_description">Vehicle Description</string>
+    <string name="logging_out">Logging out</string>
 
 </resources>

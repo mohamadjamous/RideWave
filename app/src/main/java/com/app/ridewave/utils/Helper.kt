@@ -1,16 +1,19 @@
 package com.app.ridewave.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.preference.PreferenceManager
+import com.app.ridewave.views.HomeActivity
+import com.app.ridewave.views.LoginActivity
+
 
 object Helper {
 
 
     fun saveRiderId(id: String, userType: String, context: Context) {
         // Get the shared preferences object
-        val sharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(context)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         // Create an editor for the shared preferences object
         val editor = sharedPreferences.edit()
@@ -28,19 +31,41 @@ object Helper {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         // Get the user ID from the shared preferences object
-        val riderId: String = sharedPreferences.getString(Constants.USER_TYPE, null).toString()
+        val id: String = sharedPreferences.getString(Constants.USER_ID, null).toString()
 
         // Return the user ID
-        return riderId
+        return id
     }
 
-    fun restartApp(context: Context) {
-        val packageManager = context.packageManager
-        val intent = packageManager.getLaunchIntentForPackage(context.packageName)
-        val componentName = intent!!.component
-        val mainIntent = Intent.makeRestartActivityTask(componentName)
-        context.startActivity(mainIntent)
-        Runtime.getRuntime().exit(0)
+
+    fun getUserType(context: Context): String {
+        // Get the shared preferences object
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+        // Get the user ID from the shared preferences object
+        val userType: String = sharedPreferences.getString(Constants.USER_TYPE, null).toString()
+
+        // Return the user ID
+        return userType
+    }
+
+
+    fun restart(activity: Activity) {
+        // Restart the app by launching the main activity
+        val intent = Intent(activity, LoginActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        activity.startActivity(intent)
+
+        // Finish the current activity to prevent it from remaining in the back stack
+        activity.finish()
+    }
+
+
+    fun deleteUserIdFromSharedPreferences(context: Context) {
+        // Get the shared preferences object
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        sharedPreferences.edit().clear().apply()
+
     }
 
 

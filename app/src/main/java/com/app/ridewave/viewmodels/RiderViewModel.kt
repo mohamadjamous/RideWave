@@ -1,17 +1,20 @@
 package com.app.ridewave.viewmodels
 
 import android.app.Activity
-import android.widget.Toast
+import android.content.Context
+import android.provider.SyncStateContract.Helpers
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.ridewave.models.RiderModel
 import com.app.ridewave.utils.Constants
+import com.app.ridewave.utils.Helper
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.TimeUnit
 
@@ -19,7 +22,11 @@ class RiderViewModel : ViewModel() {
 
     lateinit var token: ForceResendingToken
 
-    fun createAccountEmailPassword(email: String, password: String, name :String): MutableLiveData<RiderModel> {
+    fun createAccountEmailPassword(
+        email: String,
+        password: String,
+        name: String
+    ): MutableLiveData<RiderModel> {
 
         // Create a Firebase Auth instance
         val auth = FirebaseAuth.getInstance()
@@ -98,6 +105,9 @@ class RiderViewModel : ViewModel() {
         // Create a Firebase Auth instance
         val auth = FirebaseAuth.getInstance()
 
+        val db = FirebaseFirestore.getInstance()
+
+
         // Sign in the user with email and password
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -106,6 +116,8 @@ class RiderViewModel : ViewModel() {
                     // Get the current user
                     val user = auth.currentUser
 
+
+                    db.collection(Constants.RIDER_COLLECTION)
                     // Set the Rider object in the MutableLiveData object
                     mutableLiveData.value = "successful:" + user?.uid
 
@@ -425,6 +437,46 @@ class RiderViewModel : ViewModel() {
 
         return mutableLiveData
     }
+
+
+    fun getAccountInfo(id: String): MutableLiveData<String> {
+        // Create a MutableLiveData object to store the Rider object
+        val mutableLiveData: MutableLiveData<String> = MutableLiveData()
+        val db = FirebaseFirestore.getInstance()
+
+        println("CurrentUserId: " + id)
+
+        db.collection(Constants.RIDER_COLLECTION).whereEqualTo("id", id)
+            .get()
+            .addOnSuccessListener {
+
+                var documentSnapshot: DocumentSnapshot? = null
+                if (it.equals(null)) {
+                    mutableLiveData.value = "error"
+                } else {
+                    documentSnapshot = it.documents[0]
+                }
+
+                if (documentSnapshot != null) {
+                    mutableLiveData.value = documentSnapshot.getString("name")
+                } else {
+
+                    mutableLiveData.value = "error"
+                }
+
+            }
+            .addOnFailureListener {
+                // Handle any errors
+                println("ErrorMessage: ${it.message}")
+                mutableLiveData.value = "error"
+
+            }
+
+
+        return mutableLiveData
+    }
+
+
 
 
 }
