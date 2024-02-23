@@ -122,7 +122,7 @@
         android:background="@drawable/borders"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:visibility="gone"
+
         android:padding="10dp"
         app:layout_constraintBottom_toTopOf="@+id/delete_account"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">

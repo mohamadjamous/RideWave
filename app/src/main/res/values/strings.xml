@@ -40,5 +40,8 @@
     <string name="delete_my_account">Delete my account</string>
     <string name="vehicle_description">Vehicle Description</string>
     <string name="logging_out">Logging out</string>
+    <string name="login_driver">Login as driver</string>
+    <string name="driver_login">Driver Login</string>
+    <string name="deleting_account">Deleting your account</string>
 
 </resources>

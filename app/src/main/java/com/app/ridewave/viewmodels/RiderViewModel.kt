@@ -116,7 +116,6 @@ class RiderViewModel : ViewModel() {
                     // Get the current user
                     val user = auth.currentUser
 
-
                     db.collection(Constants.RIDER_COLLECTION)
                     // Set the Rider object in the MutableLiveData object
                     mutableLiveData.value = "successful:" + user?.uid
@@ -476,6 +475,42 @@ class RiderViewModel : ViewModel() {
         return mutableLiveData
     }
 
+
+
+    fun deleteRiderAccount(id: String): MutableLiveData<String>
+    {
+        val mutableLiveData: MutableLiveData<String> = MutableLiveData()
+        // Delete the Firebase Auth account
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.delete()
+
+        // Delete the Firestore account
+        val db = FirebaseFirestore.getInstance()
+        // Query to find documents with "uid" field equal to the specified value
+        db.collection(Constants.RIDER_COLLECTION)
+            .whereEqualTo("id", id).get().addOnSuccessListener { documents ->
+                if (documents.size() >0) {
+                    // Delete each document found
+                    documents.documents.get(0).reference.delete().addOnSuccessListener {
+                        // Document successfully deleted
+                        mutableLiveData.value = "success"
+                    }.addOnFailureListener { e ->
+                            // Error deleting document
+                            println("ErrorMessage: ${e.message}")
+                            mutableLiveData.value = "error"
+                        }
+                }else
+                {
+                    mutableLiveData.value = "error"
+                }
+            }
+            .addOnFailureListener { e ->
+                // Error querying documents
+                println("ErrorMessage: ${e.message}")
+                mutableLiveData.value = "error"
+            }
+        return mutableLiveData
+    }
 
 
 

@@ -4,14 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.preference.PreferenceManager
-import com.app.ridewave.views.HomeActivity
 import com.app.ridewave.views.LoginActivity
 
 
 object Helper {
 
 
-    fun saveRiderId(id: String, userType: String, context: Context) {
+    fun saveUserId(id: String, userType: String, context: Context) {
         // Get the shared preferences object
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -26,7 +25,7 @@ object Helper {
         editor.apply()
     }
 
-    fun getRiderId(context: Context): String {
+    fun getUserId(context: Context): String {
         // Get the shared preferences object
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 

@@ -2,7 +2,6 @@ package com.app.ridewave.views
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
@@ -21,6 +20,7 @@ import com.app.ridewave.R
 import com.app.ridewave.databinding.ActivityLoginBinding
 import com.app.ridewave.utils.CustomProgressDialog
 import com.app.ridewave.utils.Helper
+import com.app.ridewave.viewmodels.DriverViewModel
 import com.app.ridewave.viewmodels.RiderViewModel
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
@@ -32,7 +32,8 @@ class LoginActivity : AppCompatActivity() {
 
 
     lateinit var binding: ActivityLoginBinding
-    lateinit var viewModel: RiderViewModel
+    lateinit var riderViewModel: RiderViewModel
+    lateinit var driverViewModel: DriverViewModel
     lateinit var context: Context
     lateinit var dialog: android.app.AlertDialog
     lateinit var verificationId: String
@@ -53,7 +54,8 @@ class LoginActivity : AppCompatActivity() {
 
 
 
-        viewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
+        riderViewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
+        driverViewModel = ViewModelProvider(this).get(DriverViewModel::class.java)
         context = this
 
         binding.driverSignupText.setOnClickListener{
@@ -70,9 +72,9 @@ class LoginActivity : AppCompatActivity() {
         )
 
         //check if rider id exists
-        println("UserIdValue: " + Helper.getRiderId(context))
-        println("UserIdValue: " + Helper.getRiderId(context).length)
-        if (Helper.getRiderId(context) != "null") {
+        println("UserIdValue: " + Helper.getUserId(context))
+        println("UserIdValue: " + Helper.getUserId(context).length)
+        if (Helper.getUserId(context) != "null") {
             startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
@@ -119,7 +121,20 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.login.setOnClickListener {
-            loginUser(binding.emailLogin.text.toString(), binding.passwordLogin.text.toString())
+            riderLogin(binding.emailLogin.text.toString(), binding.passwordLogin.text.toString())
+        }
+
+        binding.driverLogin.setOnClickListener {
+            pageStates(4)
+        }
+
+        binding.driverLoginButton.setOnClickListener{
+            driverLogin(binding.driverEmail.text.toString(), binding.driverPassword.text.toString())
+
+        }
+
+        binding.backDriver.setOnClickListener {
+            pageStates(0)
         }
 
         binding.forgotPassword.setOnClickListener {
@@ -155,12 +170,56 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+     fun driverLogin(email: String, password: String): Boolean {
+
+
+         // Check if the email address is empty
+         if (email.isEmpty()) {
+             Toast.makeText(this, "Please enter an email address", Toast.LENGTH_SHORT).show()
+             return false
+         }
+
+         // Check if the password is empty
+         if (password.isEmpty()) {
+             Toast.makeText(this, "Please enter a password", Toast.LENGTH_SHORT).show()
+             return false
+         }
+
+         // Check if the email address is a valid email address
+         val emailPattern =
+             Pattern.compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,64}")
+         val emailMatcher = emailPattern.matcher(email)
+         if (!emailMatcher.matches()) {
+             Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+             return false
+         }
+
+         initializeDialog(getString(R.string.logging_in))
+         showDialog(true)
+         driverViewModel.loginUser(email, password).observe(this)
+         {
+             println("LoginResponse: $it")
+
+             val response: List<String> = it.split(":")
+             if (response[0] == "successful") {
+                 println("DriverIdAdded: " + response[1])
+                 saveUser(response[1], "1")
+
+             } else {
+                 Toast.makeText(this, response[1], Toast.LENGTH_SHORT).show()
+             }
+
+             showDialog(false)
+         }
+         return  false
+     }
+
     fun verifyOTP(otp: String) {
 
         initializeDialog(getString(R.string.verifying_otp_code))
         showDialog(true)
 
-        viewModel.verifyOTPCode(verificationId, otp, phoneNumber, phoneNumberPageState)
+        riderViewModel.verifyOTPCode(verificationId, otp, phoneNumber, phoneNumberPageState)
             .observe(this)
             {
                 val response: String = it
@@ -168,7 +227,7 @@ class LoginActivity : AppCompatActivity() {
                 val content: String = response.split(":")[1]
 
                 if (message == "success") {
-                    saveRiderId(message)
+                    saveUser(message, "0")
                 } else {
                     Toast.makeText(this, content, Toast.LENGTH_SHORT).show()
                 }
@@ -197,7 +256,7 @@ class LoginActivity : AppCompatActivity() {
         showDialog(true)
 
 
-        viewModel.sendOTPCode(this.phoneNumber, this, phoneNumberPageState).observe(this) {
+        riderViewModel.sendOTPCode(this.phoneNumber, this, phoneNumberPageState).observe(this) {
 
             val response: String = it
             println("ResponseValue: $response")
@@ -222,7 +281,7 @@ class LoginActivity : AppCompatActivity() {
 
                 "smsCode" -> {
 
-                    saveRiderId(message)
+                    saveUser(message , "0")
                 }
 
                 ("verificationId") -> {
@@ -237,7 +296,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    fun loginUser(email: String, password: String): Boolean {
+    fun riderLogin(email: String, password: String): Boolean {
         // Check if the email address is empty
         if (email.isEmpty()) {
             Toast.makeText(this, "Please enter an email address", Toast.LENGTH_SHORT).show()
@@ -261,13 +320,13 @@ class LoginActivity : AppCompatActivity() {
 
         initializeDialog(getString(R.string.logging_in))
         showDialog(true)
-        viewModel.loginUser(email, password).observe(this)
+        riderViewModel.loginUser(email, password).observe(this)
         {
             println("LoginResponse: $it")
 
             val response: List<String> = it.split(":")
             if (response[0] == "successful") {
-                saveRiderId(response[1])
+                saveUser(response[1] , "0")
 
             } else {
                 Toast.makeText(this, response[1], Toast.LENGTH_SHORT).show()
@@ -301,11 +360,13 @@ class LoginActivity : AppCompatActivity() {
     * 1 -> signup
     * 2 -> phone login
     * 3 -> verify  otp code
+    * 4 -> driver login
      */
     fun pageStates(page: Int) {
 
         when (page) {
             0 -> {
+                binding.driverLoginLayout.visibility = View.GONE
                 binding.loginLayout.visibility = View.VISIBLE
                 binding.signupLayout.visibility = View.GONE
                 binding.phoneLoginLayout.visibility = View.GONE
@@ -317,9 +378,12 @@ class LoginActivity : AppCompatActivity() {
                 binding.emailSignup.setText("")
                 binding.passwordSignup.setText("")
                 binding.confirmPassword.setText("")
+                binding.driverEmail.setText("")
+                binding.driverPassword.setText("")
             }
 
             1 -> {
+                binding.driverLoginLayout.visibility = View.GONE
                 binding.loginLayout.visibility = View.GONE
                 binding.signupLayout.visibility = View.VISIBLE
                 binding.phoneLoginLayout.visibility = View.GONE
@@ -329,9 +393,12 @@ class LoginActivity : AppCompatActivity() {
                 binding.emailSignup.setText("")
                 binding.passwordSignup.setText("")
                 binding.confirmPassword.setText("")
+                binding.driverEmail.setText("")
+                binding.driverPassword.setText("")
             }
 
             2 -> {
+                binding.driverLoginLayout.visibility = View.GONE
                 binding.loginLayout.visibility = View.GONE
                 binding.signupLayout.visibility = View.GONE
                 binding.phoneLoginLayout.visibility = View.VISIBLE
@@ -342,9 +409,12 @@ class LoginActivity : AppCompatActivity() {
                 binding.emailSignup.setText("")
                 binding.passwordSignup.setText("")
                 binding.confirmPassword.setText("")
+                binding.driverEmail.setText("")
+                binding.driverPassword.setText("")
             }
 
             3 -> {
+                binding.driverLoginLayout.visibility = View.GONE
                 binding.loginLayout.visibility = View.GONE
                 binding.signupLayout.visibility = View.GONE
                 binding.phoneLoginLayout.visibility = View.GONE
@@ -354,7 +424,26 @@ class LoginActivity : AppCompatActivity() {
                 binding.passwordSignup.setText("")
                 binding.confirmPassword.setText("")
                 binding.verifyOtp.setText("")
+                binding.driverEmail.setText("")
+                binding.driverPassword.setText("")
             }
+            4->
+                {
+                    binding.driverLoginLayout.visibility = View.VISIBLE
+                    binding.loginLayout.visibility = View.GONE
+                    binding.signupLayout.visibility = View.GONE
+                    binding.phoneLoginLayout.visibility = View.GONE
+                    binding.phoneVerificationLayout.visibility = View.GONE
+                    binding.phoneNumber.setText("")
+                    binding.verifyOtp.setText("")
+                    binding.emailLogin.setText("")
+                    binding.passwordLogin.setText("")
+                    binding.emailSignup.setText("")
+                    binding.passwordSignup.setText("")
+                    binding.confirmPassword.setText("")
+                    binding.driverEmail.setText("")
+                    binding.driverPassword.setText("")
+                }
 
         }
 
@@ -412,7 +501,7 @@ class LoginActivity : AppCompatActivity() {
         initializeDialog(getString(R.string.creating_account))
         showDialog(true)
 
-        viewModel.createAccountEmailPassword(email, password, name).observe(this) {
+        riderViewModel.createAccountEmailPassword(email, password, name).observe(this) {
 
             if (it != null) {
 
@@ -420,7 +509,7 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Email address already exists", Toast.LENGTH_SHORT).show()
 
                 } else {
-                    saveRiderId(it.id)
+                    saveUser(it.id,  "0")
                 }
             } else {
                 Toast.makeText(this, "Error creating account", Toast.LENGTH_SHORT).show()
@@ -543,9 +632,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    fun saveRiderId(id: String) {
-
-        Helper.saveRiderId(id, "0", context)
+    fun saveUser(id: String, type:String) {
+        Helper.saveUserId(id, type, context)
         startActivity(Intent(this, HomeActivity::class.java))
         finish()
     }
@@ -565,7 +653,7 @@ class LoginActivity : AppCompatActivity() {
         showDialog(true)
 
 
-        viewModel.resendOtpCode(this.phoneNumber, this).observe(this) {
+        riderViewModel.resendOtpCode(this.phoneNumber, this).observe(this) {
 
             val response: String = it
             println("ResponseValue: $response")
@@ -590,7 +678,7 @@ class LoginActivity : AppCompatActivity() {
 
                 "smsCode" -> {
 
-                    saveRiderId(message)
+                    saveUser(message, "0")
                 }
 
                 ("verificationId") -> {

@@ -5,18 +5,15 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.app.ridewave.R
 import com.app.ridewave.databinding.ActivityDriverSignupBinding
-import com.app.ridewave.utils.Constants
 import com.app.ridewave.utils.CustomProgressDialog
 import com.app.ridewave.utils.Helper
 import com.app.ridewave.viewmodels.DriverViewModel
@@ -147,7 +144,7 @@ class DriverSignupActivity : AppCompatActivity() {
 
                     } else {
 
-                        Helper.saveRiderId(it.uid, "driver", context)
+                        Helper.saveUserId(it.uid, "driver", context)
                         startActivity(Intent(this, HomeActivity::class.java))
                         finish()
                     }
