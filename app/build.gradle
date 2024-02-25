@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id 'com.google.gms.google-services'
+    alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
 
 
 }
@@ -80,6 +81,7 @@ android {
 
     buildFeatures {
         compose true
+        viewBinding true
     }
 
     composeOptions {
@@ -98,6 +100,7 @@ dependencies {
     implementation libs.firebase.storage
     implementation libs.firebase.database.ktx
     implementation libs.material
+    implementation libs.play.services.maps
 
     def composeBom = platform('androidx.compose:compose-bom:2024.01.00')
     implementation composeBom
@@ -143,6 +146,12 @@ dependencies {
 
     //Glide for images loading
     implementation 'com.github.bumptech.glide:glide:4.16.0'
+
+
+    implementation 'com.google.maps:google-maps-services:0.9.3'
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
+
+
 
 
 }

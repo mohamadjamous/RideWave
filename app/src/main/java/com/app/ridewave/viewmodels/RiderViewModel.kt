@@ -5,6 +5,7 @@ import android.content.Context
 import android.provider.SyncStateContract.Helpers
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.app.ridewave.models.DriverModel
 import com.app.ridewave.models.RiderModel
 import com.app.ridewave.utils.Constants
 import com.app.ridewave.utils.Helper
@@ -512,6 +513,50 @@ class RiderViewModel : ViewModel() {
         return mutableLiveData
     }
 
+
+
+    fun searchForDrivers() : MutableLiveData<DriverModel>
+    {
+        val mutableLiveData: MutableLiveData<DriverModel> = MutableLiveData()
+
+//        val onlineDrivers = MutableLiveData<MutableList<String>>()
+
+        // Create a reference to the "drivers" collection
+        val driversCollection = FirebaseFirestore.getInstance().collection(Constants.DRIVERS_COLLECTION)
+
+        // Listen for changes in the "online" field of each document
+        driversCollection.whereEqualTo("online", true)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    // Handle error
+                    mutableLiveData.value = null
+                    println("ErrorMessage: ${e.message}")
+                }
+
+                // Create a mutable list to store the online driver IDs
+                val onlineDriverIds = mutableListOf<String>()
+
+                // Iterate through the documents in the snapshot
+                for (document in snapshot!!.documents) {
+                    // Get the driver ID
+                    val driverId = document.id
+                    mutableLiveData.value = DriverModel(
+                        document.getString("uid")!!,
+                        document.getString("name")!!,
+                        "",
+                        document.getString("carPhoto")!!,
+                        document.getString("carDescription")!!)
+
+
+                    // Add the driver ID to the list
+                    onlineDriverIds.add(driverId)
+                    break
+                }
+            }
+
+        // Return the MutableLiveData
+        return mutableLiveData
+    }
 
 
 }

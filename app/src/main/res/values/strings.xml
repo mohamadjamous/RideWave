@@ -43,5 +43,18 @@
     <string name="login_driver">Login as driver</string>
     <string name="driver_login">Driver Login</string>
     <string name="deleting_account">Deleting your account</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="enter_destination">Enter a Destination</string>
+    <string name="search">Search</string>
+    <string name="destination">Destination</string>
+    <string name="cancel">Cancel</string>
+    <string name="looking_for_drivers">Looking For Drivers ...</string>
+    <string name="select_driver">Select Driver</string>
+    <string name="request_ride">Request Ride</string>
+    <string name="you_have_arrived">You have arrived</string>
+    <string name="return_to_dashboard">Return to dashboard</string>
+    <string name="select_location">Select Location</string>
+    <string name="pick_up">pick up</string>
+    <string name="drop_off">drop off</string>
 
 </resources>
