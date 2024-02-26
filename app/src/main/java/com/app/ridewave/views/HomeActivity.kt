@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.app.ridewave.R
+import com.app.ridewave.adapters.DriversAdapter
 import com.app.ridewave.databinding.ActivityHomeBinding
 import com.app.ridewave.viewmodels.RiderViewModel
 import com.bumptech.glide.Glide
@@ -120,10 +121,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 if (it != null) {
                     setPageState(2)
-                    binding.description.text = it.carDescription
-                    Glide.with(context).load(it.carPhoto).into(binding.carImage)
-                    binding.selectDriver.visibility = View.VISIBLE
-
+                    println("ArraySize: " + it.size)
+                    binding.listView.adapter = DriversAdapter(it, context)
                 } else {
                     Toast.makeText(this, "No drivers found", Toast.LENGTH_SHORT).show()
                     setPageState(0)

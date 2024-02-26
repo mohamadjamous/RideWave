@@ -515,44 +515,49 @@ class RiderViewModel : ViewModel() {
 
 
 
-    fun searchForDrivers() : MutableLiveData<DriverModel>
+    fun searchForDrivers() : MutableLiveData<List<DriverModel>>
     {
-        val mutableLiveData: MutableLiveData<DriverModel> = MutableLiveData()
+        val mutableLiveData: MutableLiveData<List<DriverModel>> = MutableLiveData()
 
-//        val onlineDrivers = MutableLiveData<MutableList<String>>()
 
-        // Create a reference to the "drivers" collection
-        val driversCollection = FirebaseFirestore.getInstance().collection(Constants.DRIVERS_COLLECTION)
+        FirebaseFirestore.getInstance().collection(Constants.DRIVERS_COLLECTION)
+            .whereEqualTo("online", true)
+            .get()
+            .addOnSuccessListener {
 
-        // Listen for changes in the "online" field of each document
-        driversCollection.whereEqualTo("online", true)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    // Handle error
+                val list = mutableListOf<DriverModel>()
+                if (it != null)
+                {
+                    for (i in 0 until it.size())
+                    {
+                        val documentSnapShot  = it.documents[i]
+                        println("DriverName: ${documentSnapShot.getString("name")}")
+                        list.add(DriverModel(
+                            documentSnapShot.getString("uid").toString(),
+                            documentSnapShot.getString("name").toString(),
+                            "",
+                            documentSnapShot.getString("carPhoto").toString(),
+                            documentSnapShot.getString("carDescription").toString()
+                        ))
+
+                    }
+                    println("ListSize: ${list.size}")
+
+                    mutableLiveData.value = list
+
+                }else
+                {
                     mutableLiveData.value = null
-                    println("ErrorMessage: ${e.message}")
                 }
 
-                // Create a mutable list to store the online driver IDs
-                val onlineDriverIds = mutableListOf<String>()
-
-                // Iterate through the documents in the snapshot
-                for (document in snapshot!!.documents) {
-                    // Get the driver ID
-                    val driverId = document.id
-                    mutableLiveData.value = DriverModel(
-                        document.getString("uid")!!,
-                        document.getString("name")!!,
-                        "",
-                        document.getString("carPhoto")!!,
-                        document.getString("carDescription")!!)
-
-
-                    // Add the driver ID to the list
-                    onlineDriverIds.add(driverId)
-                    break
-                }
             }
+            .addOnFailureListener {
+                // Handle any errors
+                println("ErrorMessage: ${it.message}")
+                mutableLiveData.value = null
+
+            }
+
 
         // Return the MutableLiveData
         return mutableLiveData
