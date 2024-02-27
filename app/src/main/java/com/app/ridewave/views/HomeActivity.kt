@@ -1,5 +1,6 @@
 package com.app.ridewave.views
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.location.Address
@@ -14,6 +15,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.app.ridewave.R
 import com.app.ridewave.adapters.DriversAdapter
 import com.app.ridewave.databinding.ActivityHomeBinding
+import com.app.ridewave.models.DriverModel
+import com.app.ridewave.models.RideModel
+import com.app.ridewave.utils.CustomProgressDialog
+import com.app.ridewave.utils.Helper
+import com.app.ridewave.utils.SelectDriverInterface
+import com.app.ridewave.viewmodels.RideViewModel
 import com.app.ridewave.viewmodels.RiderViewModel
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,15 +33,20 @@ import com.google.android.gms.maps.model.Polyline
 import java.io.IOException
 
 
-class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
+class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterface {
 
+    private lateinit var dialog: AlertDialog
     lateinit var binding: ActivityHomeBinding
     private lateinit var map: GoogleMap
     val context: Context = this
-    lateinit var pickupLatLng: LatLng
-    lateinit var dropOffLatLng: LatLng
+    var pickupLatLng: LatLng = LatLng(0.0, 0.0)
+    var dropOffLatLng: LatLng = LatLng(0.0, 0.0)
+    var pickUpAddress = ""
+    var dropOffAddress = ""
     lateinit var currentPolyline: Polyline
-    lateinit var viewModel: RiderViewModel
+    lateinit var riderViewModel: RiderViewModel
+    lateinit var rideViewModel: RideViewModel
+    lateinit var currentRide: RideModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +55,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
 
-        viewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
+        riderViewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
+        rideViewModel = ViewModelProvider(this).get(RideViewModel::class.java)
         binding.profileCard.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
@@ -115,14 +128,27 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
 
-        binding.requestRide.setOnClickListener{
+        binding.requestRide.setOnClickListener {
+
+            if (pickupLatLng.latitude == 0.0) {
+                Toast.makeText(this, "Please enter pickup location", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            } else if (dropOffLatLng.latitude == 0.0) {
+                Toast.makeText(this, "Please enter drop off location", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            pickUpAddress = binding.pickUp.text.toString()
+            dropOffAddress = binding.dropOff.text.toString()
+
             setPageState(1)
-            viewModel.searchForDrivers().observe(this){
+            binding.destination.text = binding.dropOff.text
+            riderViewModel.searchForDrivers().observe(this) {
 
                 if (it != null) {
                     setPageState(2)
                     println("ArraySize: " + it.size)
-                    binding.listView.adapter = DriversAdapter(it, context)
+                    binding.listView.adapter = DriversAdapter(it, context, this)
                 } else {
                     Toast.makeText(this, "No drivers found", Toast.LENGTH_SHORT).show()
                     setPageState(0)
@@ -130,13 +156,23 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
             }
 
+
         }
 
 
-        binding.cancel.setOnClickListener{
+        binding.cancel.setOnClickListener {
+            finishRide(0)
+        }
+
+        binding.finishRide.setOnClickListener {
+            finishRide(1)
+        }
+
+        binding.returnDashboard.setOnClickListener {
             setPageState(0)
         }
 
+        getCurrentUser(Helper.getUserId(context), Helper.getUserType(context))
 
     }
 
@@ -152,7 +188,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
      * @state 0 -> searching
      * @state 1 -> looking for drivers
      * @state 2 -> select a driver
-     * @state 3 -> arrived to destination
+     * @state 3 -> on going ride
+     * @state 4 -> arrived to destination
      */
     fun setPageState(state: Int) {
         when (state) {
@@ -167,7 +204,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 binding.driverSearchLayout.visibility = View.VISIBLE
                 binding.progressLayout.visibility = View.VISIBLE
                 binding.selectDriverLayout.visibility = View.GONE
+                binding.vehicleInfo.visibility = View.GONE
                 binding.arrivedLayout.visibility = View.GONE
+                binding.listView.visibility = View.GONE
+                binding.finishRide.visibility = View.GONE
+
             }
 
             2 -> {
@@ -176,92 +217,155 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 binding.driverSearchLayout.visibility = View.VISIBLE
                 binding.progressLayout.visibility = View.GONE
                 binding.selectDriverLayout.visibility = View.VISIBLE
+                binding.listView.visibility = View.VISIBLE
+                binding.vehicleInfo.visibility = View.GONE
                 binding.arrivedLayout.visibility = View.GONE
+                binding.finishRide.visibility = View.GONE
             }
 
             3 -> {
+                binding.addressSearchLayout.visibility = View.GONE
+                binding.driverSearchLayout.visibility = View.VISIBLE
+                binding.progressLayout.visibility = View.GONE
+                binding.selectDriverLayout.visibility = View.VISIBLE
+                binding.vehicleInfo.visibility = View.VISIBLE
+                binding.listView.visibility = View.GONE
+                binding.arrivedLayout.visibility = View.GONE
+                binding.finishRide.visibility = View.VISIBLE
+            }
+
+            4 -> {
 
                 binding.addressSearchLayout.visibility = View.GONE
                 binding.driverSearchLayout.visibility = View.VISIBLE
                 binding.progressLayout.visibility = View.GONE
-                binding.selectDriverLayout.visibility = View.GONE
+                binding.selectDriverLayout.visibility = View.VISIBLE
+                binding.vehicleInfo.visibility = View.VISIBLE
                 binding.arrivedLayout.visibility = View.VISIBLE
+                binding.listView.visibility = View.GONE
+                binding.finishRide.visibility = View.GONE
+                binding.pickUp.setText("")
+                binding.dropOff.setText("")
             }
         }
     }
 
+    override fun selectedDriver(driverModel: DriverModel) {
+        initializeDialog(getString(R.string.selecting_driver))
+        showDialog(true)
+
+        riderViewModel.getAccountInfo(Helper.getUserId(context)).observe(this)
+        {
+            if (it.equals(null)) {
+                Toast.makeText(context, "Error Selecting Ride", Toast.LENGTH_SHORT).show()
+            } else {
+                val ride = RideModel(
+                    "",
+                    pickupLatLng,
+                    dropOffLatLng,
+                    pickUpAddress,
+                    dropOffAddress,
+                    it,
+                    driverModel, 0
+                )
+                rideViewModel.createRide(
+                    ride
+                )
+                currentRide = ride
+                setPageState(3)
+                binding.description.text = driverModel.carDescription
+                Glide.with(context).load(driverModel.carPhoto).into(binding.carImage)
+            }
+
+            showDialog(false)
+
+        }
 
 
-//    fun drawRoute(pickupLatLng: LatLng, dropOffLatLng: LatLng)
-//    {
-//
-//        //Define list to get all latlng for the route
-//        val path: MutableList<LatLng> = ArrayList()
-//
-//
-//        //Execute Directions API request
-//        val context: GeoApiContext = Builder().apiKey("YOUR_API_KEY").build()
-//        val req: DirectionsApiRequest =
-//            DirectionsApi.getDirections(context, "41.385064,2.173403", "40.416775,-3.70379")
-//        try {
-//            val res: DirectionsResult = req.await()
-//
-//            //Loop through legs and steps to get encoded polylines of each step
-//            if (res.routes != null && res.routes.length > 0) {
-//                val route: DirectionsRoute = res.routes.get(0)
-//
-//                if (route.legs != null) {
-//                    for (i in 0 until route.legs.length) {
-//                        val leg: DirectionsLeg = route.legs.get(i)
-//                        if (leg.steps != null) {
-//                            for (j in 0 until leg.steps.length) {
-//                                val step: DirectionsStep = leg.steps.get(j)
-//                                if (step.steps != null && step.steps.length > 0) {
-//                                    for (k in 0 until step.steps.length) {
-//                                        val step1: DirectionsStep = step.steps.get(k)
-//                                        val points1: EncodedPolyline = step1.polyline
-//                                        if (points1 != null) {
-//                                            //Decode polyline and add points to list of route coordinates
-//                                            val coords1: List<com.google.maps.model.LatLng> =
-//                                                points1.decodePath()
-//                                            for (coord1 in coords1) {
-//                                                path.add(LatLng(coord1.lat, coord1.lng))
-//                                            }
-//                                        }
-//                                    }
-//                                } else {
-//                                    val points: EncodedPolyline = step.polyline
-//                                    if (points != null) {
-//                                        //Decode polyline and add points to list of route coordinates
-//                                        val coords: List<com.google.maps.model.LatLng> =
-//                                            points.decodePath()
-//                                        for (coord in coords) {
-//                                            path.add(LatLng(coord.lat, coord.lng))
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        } catch (ex: Exception) {
-//            Log.e(TAG, ex.localizedMessage)
-//        }
-//
-//
-//        //Draw the polyline
-//        if (path.size > 0) {
-//            val opts = PolylineOptions().addAll(path).color(Color.BLUE).width(5f)
-//            mMap.addPolyline(opts)
-//        }
-//
-//        mMap.getUiSettings().setZoomControlsEnabled(true)
-//
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(zaragoza, 6f))
-//    }
+    }
+
+
+    fun initializeDialog(text: String) {
+        dialog = CustomProgressDialog.showCustomDialog(context, text, R.color.white)
+    }
+
+
+    fun showDialog(show: Boolean) {
+        if (show) {
+            dialog.show()
+        } else {
+            dialog.dismiss()
+        }
+
+    }
+
+
+    fun getCurrentUser(id: String, userType: String) {
+
+        initializeDialog(getString(R.string.loading))
+        showDialog(true)
+
+        //rider
+        if (userType == "0") {
+            riderViewModel.getAccountInfo(id).observe(this)
+            {
+                if (it.equals(null)) {
+                    Toast.makeText(context, "Error Loading User", Toast.LENGTH_SHORT).show()
+                    setPageState(0)
+                } else {
+                    rideViewModel.getRide(it.id).observe(this)
+                    { rideModel ->
+                        //no active ride
+                        if (rideModel == null) {
+                            setPageState(0)
+                        }
+                        //active ride
+                        else {
+                            currentRide = rideModel
+                            setPageState(3)
+                            binding.description.text = rideModel.driver.carDescription
+                            Glide.with(context).load(rideModel.driver.carPhoto)
+                                .into(binding.carImage)
+                        }
+                    }
+                }
+                showDialog(false)
+            }
+        } else {
+            Toast.makeText(context, "Driver Account", Toast.LENGTH_SHORT).show()
+            showDialog(false)
+        }
 
 
 
+    }
+
+
+    fun finishRide(type: Int) {
+
+        initializeDialog(getString(R.string.finishing_ride))
+        showDialog(true)
+
+        println("CurrentIdValue: ${currentRide.id}")
+
+        rideViewModel.finishRide(currentRide.id, 1).observe(this)
+        {
+            if (it.equals("success")) {
+                if (type == 0)
+                {
+                    setPageState(0)
+                }else
+                {
+                    setPageState(4)
+                }
+
+            } else {
+                Toast.makeText(context, "Error Finishing Ride", Toast.LENGTH_SHORT).show()
+            }
+            showDialog(false)
+        }
+
+
+    }
 
 }

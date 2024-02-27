@@ -179,7 +179,7 @@ class DriverViewModel : ViewModel() {
         // Query to find documents with "uid" field equal to the specified value
         db.collection(Constants.DRIVERS_COLLECTION)
             .whereEqualTo("uid", id).get().addOnSuccessListener { documents ->
-                if (documents.size() >0) {
+                if (documents.size() > 0) {
                     // Delete each document found
                     documents.documents.get(0).reference.delete().addOnSuccessListener {
                         // Document successfully deleted
@@ -189,8 +189,7 @@ class DriverViewModel : ViewModel() {
                         println("ErrorMessage: ${e.message}")
                         mutableLiveData.value = "error"
                     }
-                }else
-                {
+                } else {
                     mutableLiveData.value = "error"
                 }
             }
@@ -199,6 +198,43 @@ class DriverViewModel : ViewModel() {
                 println("ErrorMessage: ${e.message}")
                 mutableLiveData.value = "error"
             }
+        return mutableLiveData
+    }
+
+    fun updateFirebaseUserFieldById(
+        userId: String,
+        field: String,
+        value: Any
+    ): MutableLiveData<String> {
+        val mutableLiveData: MutableLiveData<String> = MutableLiveData()
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val updates = hashMapOf(field to value)
+            FirebaseFirestore.getInstance().collection(Constants.DRIVERS_COLLECTION)
+                .whereEqualTo("uid", userId)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val documentSnapshot = querySnapshot.documents[0]
+                        documentSnapshot.reference.update(updates)
+                            .addOnSuccessListener {
+                                // Field updated successfully
+                                mutableLiveData.value = "success"
+                            }
+                            .addOnFailureListener { e ->
+                                // Error updating field
+                                println("ErrorMessage: ${e.message}")
+                                mutableLiveData.value = "error"
+                            }
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // Error querying users collection
+                    println("ErrorMessage: ${e.message}")
+                    mutableLiveData.value = "error"
+                }
+        }
         return mutableLiveData
     }
 

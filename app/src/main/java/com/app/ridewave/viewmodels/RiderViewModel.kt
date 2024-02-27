@@ -439,9 +439,9 @@ class RiderViewModel : ViewModel() {
     }
 
 
-    fun getAccountInfo(id: String): MutableLiveData<String> {
+    fun getAccountInfo(id: String): MutableLiveData<RiderModel> {
         // Create a MutableLiveData object to store the Rider object
-        val mutableLiveData: MutableLiveData<String> = MutableLiveData()
+        val mutableLiveData: MutableLiveData<RiderModel> = MutableLiveData()
         val db = FirebaseFirestore.getInstance()
 
         println("CurrentUserId: " + id)
@@ -452,23 +452,23 @@ class RiderViewModel : ViewModel() {
 
                 var documentSnapshot: DocumentSnapshot? = null
                 if (it.equals(null)) {
-                    mutableLiveData.value = "error"
+                    mutableLiveData.value = null
                 } else {
                     documentSnapshot = it.documents[0]
                 }
 
                 if (documentSnapshot != null) {
-                    mutableLiveData.value = documentSnapshot.getString("name")
+                    mutableLiveData.value = documentSnapshot.toObject(RiderModel::class.java)
                 } else {
 
-                    mutableLiveData.value = "error"
+                    mutableLiveData.value = null
                 }
 
             }
             .addOnFailureListener {
                 // Handle any errors
                 println("ErrorMessage: ${it.message}")
-                mutableLiveData.value = "error"
+                mutableLiveData.value = null
 
             }
 

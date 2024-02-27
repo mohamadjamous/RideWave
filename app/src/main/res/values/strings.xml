@@ -56,5 +56,8 @@
     <string name="select_location">Select Location</string>
     <string name="pick_up">pick up</string>
     <string name="drop_off">drop off</string>
+    <string name="finish_ride">Finish Ride</string>
+    <string name="selecting_driver">Selecting Driver</string>
+    <string name="finishing_ride">Finishing Ride</string>
 
 </resources>

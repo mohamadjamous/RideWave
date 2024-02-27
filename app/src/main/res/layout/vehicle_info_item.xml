@@ -4,13 +4,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/vehicle_info"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="10dp">
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/vehicle_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
 
         <androidx.cardview.widget.CardView
@@ -46,24 +53,32 @@
 
             <TextView
                 android:id="@+id/description"
-                tools:text="@string/upload_car_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="10dp"
+                tools:text="@string/upload_car_image" />
 
 
-            <Button
-                android:id="@+id/select_driver"
-                style="@style/greenButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginTop="20dp"
-                android:gravity="start|center_vertical"
-                android:drawableLeft="@drawable/select"
-                android:text="@string/select_driver" />
         </LinearLayout>
 
 
-
     </LinearLayout>
+
+    <Button
+        android:id="@+id/select_driver"
+        style="@style/greenButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:drawableLeft="@drawable/select"
+        android:gravity="start|center_vertical"
+        android:text="@string/select_driver" />
+
+</LinearLayout>
+
+
 

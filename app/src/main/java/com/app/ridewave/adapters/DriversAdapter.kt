@@ -8,16 +8,19 @@ import android.widget.BaseAdapter
 import android.widget.Toast
 import com.app.ridewave.databinding.VehicleInfoItemBinding
 import com.app.ridewave.models.DriverModel
+import com.app.ridewave.utils.SelectDriverInterface
 import com.bumptech.glide.Glide
 
 class DriversAdapter : BaseAdapter {
 
     private lateinit var list: List<DriverModel>
     private lateinit var context: Context
+    private lateinit var listener: SelectDriverInterface
 
-    constructor(list: List<DriverModel>, context: Context) : super() {
+    constructor(list: List<DriverModel>, context: Context, listener: SelectDriverInterface) : super() {
         this.list = list
         this.context = context
+        this.listener = listener
     }
 
 
@@ -41,7 +44,7 @@ class DriversAdapter : BaseAdapter {
         Glide.with(context).load(list.get(position).carPhoto).into(binding.carImage)
 
         binding.selectDriver.setOnClickListener{
-            Toast.makeText(context,"Driver Selected",Toast.LENGTH_SHORT).show()
+            listener.selectedDriver(list[position])
         }
 
 
