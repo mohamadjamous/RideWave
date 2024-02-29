@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.ridewave.models.DriverModel
 import com.app.ridewave.models.RideModel
-import com.app.ridewave.models.RiderModel
 import com.app.ridewave.utils.Constants
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -77,7 +76,7 @@ class RideViewModel : ViewModel() {
     }
 
 
-    fun finishRide(id: String, state: Int): MutableLiveData<String> {
+    fun updateRide(id: String, state: Int): MutableLiveData<String> {
         val mutableLiveData = MutableLiveData<String>()
 
         db.collection(Constants.RIDES_COLLECTION).document(id).update("state", state)

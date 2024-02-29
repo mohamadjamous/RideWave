@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.ridewave.models.DriverModel
+import com.app.ridewave.models.RideModel
 import com.app.ridewave.models.RiderModel
 import com.app.ridewave.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DriverViewModel : ViewModel() {
+
+
+    val db = FirebaseFirestore.getInstance()
 
 
     fun createDriverAccount(
@@ -92,9 +96,9 @@ class DriverViewModel : ViewModel() {
     }
 
 
-    fun getAccountInfo(id: String): MutableLiveData<String> {
+    fun getAccountInfo(id: String): MutableLiveData<DriverModel> {
         // Create a MutableLiveData object to store the Rider object
-        val mutableLiveData: MutableLiveData<String> = MutableLiveData()
+        val mutableLiveData: MutableLiveData<DriverModel> = MutableLiveData()
         val db = FirebaseFirestore.getInstance()
 
         println("CurrentUserId: " + id)
@@ -105,34 +109,30 @@ class DriverViewModel : ViewModel() {
 
                 var documentSnapshot: DocumentSnapshot? = null
                 if (it.equals(null)) {
-                    mutableLiveData.value = "error"
+                    mutableLiveData.value = null
                 } else {
                     documentSnapshot = it.documents[0]
                 }
 
                 if (documentSnapshot != null) {
-
-                    val finalValue = documentSnapshot.getString("name") +
-                            "," + documentSnapshot.getString("carDescription") +
-                            "," + documentSnapshot.getString("carPhoto")
-
-                    mutableLiveData.value = finalValue
+                    mutableLiveData.value = documentSnapshot.toObject(DriverModel::class.java)
                 } else {
 
-                    mutableLiveData.value = "error"
+                    mutableLiveData.value = null
                 }
 
             }
             .addOnFailureListener {
                 // Handle any errors
                 println("ErrorMessage: ${it.message}")
-                mutableLiveData.value = "error"
+                mutableLiveData.value = null
 
             }
 
 
         return mutableLiveData
     }
+
 
 
     fun loginUser(email: String, password: String): MutableLiveData<String> {
@@ -237,6 +237,92 @@ class DriverViewModel : ViewModel() {
         }
         return mutableLiveData
     }
+
+
+    fun getRide(riderId: String, state: Int): MutableLiveData<RideModel> {
+
+        val mutableLiveData = MutableLiveData<RideModel>()
+        db.collection(Constants.RIDES_COLLECTION)
+            .whereEqualTo("driver.uid", riderId)
+            .whereEqualTo("state", state)
+            .get().addOnSuccessListener {
+
+                var documentSnapshot: DocumentSnapshot? = null
+                if (it == null) {
+                    mutableLiveData.value = null
+                } else {
+                    if (it.documents.isNotEmpty()) {
+                        documentSnapshot = it.documents[0]
+                    } else {
+                        mutableLiveData.value = null
+                    }
+
+                }
+
+                if (documentSnapshot != null) {
+                    val rideModel = RideModel()
+                    val riderModel = RiderModel()
+                    rideModel.id = documentSnapshot.getString("id").toString()
+                    riderModel.name = documentSnapshot.getString("name").toString()
+                    rideModel.rider = riderModel
+                    val driver = DriverModel()
+                    driver.carPhoto = documentSnapshot.getString("driver.carPhoto").toString()
+                    driver.carDescription = documentSnapshot.getString("driver.carDescription").toString()
+                    rideModel.driver = driver
+                    rideModel.pickUpAddress = documentSnapshot.getString("pickUp.pickUpAddress").toString()
+                    rideModel.dropOffAddress = documentSnapshot.getString("dropOff.dropOffAddress").toString()
+
+                    mutableLiveData.value = rideModel
+                } else {
+
+                    mutableLiveData.value = null
+                }
+
+            }.addOnFailureListener {
+                println("ErrorMessage: ${it.message}")
+                mutableLiveData.value = null
+            }
+
+        return mutableLiveData
+    }
+
+
+    fun searchForRides() : MutableLiveData<RideModel>
+    {
+        val mutableLiveData: MutableLiveData<RideModel> = MutableLiveData()
+
+        FirebaseFirestore.getInstance().collection(Constants.RIDES_COLLECTION)
+            .whereEqualTo("online", true)
+            .whereEqualTo("state", 0)
+            .get()
+            .addOnSuccessListener {
+
+                if (it != null)
+                {
+                    for (i in 0 until it.size())
+                    {
+                        val documentSnapShot  = it.documents[i]
+                        mutableLiveData.value = documentSnapShot.toObject(RideModel::class.java)
+                    }
+                }
+                else
+                {
+                    mutableLiveData.value = null
+                }
+
+            }
+            .addOnFailureListener {
+                // Handle any errors
+                println("ErrorMessage: ${it.message}")
+                mutableLiveData.value = null
+
+            }
+
+
+        // Return the MutableLiveData
+        return mutableLiveData
+    }
+
 
 
 }

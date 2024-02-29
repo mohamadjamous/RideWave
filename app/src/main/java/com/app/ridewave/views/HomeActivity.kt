@@ -20,6 +20,7 @@ import com.app.ridewave.models.RideModel
 import com.app.ridewave.utils.CustomProgressDialog
 import com.app.ridewave.utils.Helper
 import com.app.ridewave.utils.SelectDriverInterface
+import com.app.ridewave.viewmodels.DriverViewModel
 import com.app.ridewave.viewmodels.RideViewModel
 import com.app.ridewave.viewmodels.RiderViewModel
 import com.bumptech.glide.Glide
@@ -45,6 +46,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
     var dropOffAddress = ""
     lateinit var currentPolyline: Polyline
     lateinit var riderViewModel: RiderViewModel
+    lateinit var driverViewModel: DriverViewModel
     lateinit var rideViewModel: RideViewModel
     lateinit var currentRide: RideModel
 
@@ -57,6 +59,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
 
         riderViewModel = ViewModelProvider(this).get(RiderViewModel::class.java)
         rideViewModel = ViewModelProvider(this).get(RideViewModel::class.java)
+        driverViewModel = ViewModelProvider(this).get(DriverViewModel::class.java)
         binding.profileCard.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
@@ -161,11 +164,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
 
 
         binding.cancel.setOnClickListener {
-            finishRide(0)
+            updateRide(0, -1)
+        }
+
+        binding.retryButton.setOnClickListener{
+            searchForRides()
         }
 
         binding.finishRide.setOnClickListener {
-            finishRide(1)
+            updateRide(1, 2)
         }
 
         binding.returnDashboard.setOnClickListener {
@@ -173,6 +180,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
         }
 
         getCurrentUser(Helper.getUserId(context), Helper.getUserType(context))
+
+        binding.selectRiderButton.setOnClickListener{
+            updateRide(0, 2)
+        }
 
     }
 
@@ -208,6 +219,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                 binding.arrivedLayout.visibility = View.GONE
                 binding.listView.visibility = View.GONE
                 binding.finishRide.visibility = View.GONE
+                binding.selectRiderButton.visibility = View.GONE
 
             }
 
@@ -221,6 +233,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                 binding.vehicleInfo.visibility = View.GONE
                 binding.arrivedLayout.visibility = View.GONE
                 binding.finishRide.visibility = View.GONE
+                binding.selectRiderButton.visibility = View.GONE
             }
 
             3 -> {
@@ -232,6 +245,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                 binding.listView.visibility = View.GONE
                 binding.arrivedLayout.visibility = View.GONE
                 binding.finishRide.visibility = View.VISIBLE
+                binding.selectRiderButton.visibility = View.GONE
             }
 
             4 -> {
@@ -244,6 +258,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                 binding.arrivedLayout.visibility = View.VISIBLE
                 binding.listView.visibility = View.GONE
                 binding.finishRide.visibility = View.GONE
+                binding.selectRiderButton.visibility = View.GONE
                 binding.pickUp.setText("")
                 binding.dropOff.setText("")
             }
@@ -268,9 +283,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                     it,
                     driverModel, 0
                 )
-                rideViewModel.createRide(
-                    ride
-                )
+                rideViewModel.createRide(ride)
                 currentRide = ride
                 setPageState(3)
                 binding.description.text = driverModel.carDescription
@@ -300,13 +313,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
     }
 
 
-    fun getCurrentUser(id: String, userType: String) {
+    fun getCurrentUser(id: String, userType: String)
+    {
 
         initializeDialog(getString(R.string.loading))
         showDialog(true)
 
         //rider
         if (userType == "0") {
+            binding.ridersSearchLayout.visibility = View.GONE
             riderViewModel.getAccountInfo(id).observe(this)
             {
                 if (it.equals(null)) {
@@ -332,8 +347,44 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                 showDialog(false)
             }
         } else {
-            Toast.makeText(context, "Driver Account", Toast.LENGTH_SHORT).show()
-            showDialog(false)
+
+            driverViewModel.getAccountInfo(id).observe(this)
+            {
+                if (it.equals(null)) {
+                    Toast.makeText(context, "Error Loading User", Toast.LENGTH_SHORT).show()
+                    setPageState(0)
+                } else {
+
+                    //search for on going ride
+                    driverViewModel.getRide(it.uid, 1).observe(this)
+                    { rideModel ->
+
+                        //no active ride
+                        if (rideModel == null) {
+
+                            // search for rides
+                            binding.ridersSearchLayout.visibility = View.VISIBLE
+                            binding.search.visibility = View.VISIBLE
+                            binding.retry.visibility = View.GONE
+                            searchForRides()
+
+                        }
+                        //active ride
+                        else
+                        {
+                            binding.ridersSearchLayout.visibility = View.GONE
+                            binding.commonLayout.visibility = View.VISIBLE
+                            binding.selectRiderButton.visibility = View.VISIBLE
+                            currentRide = rideModel
+                            setPageState(3)
+                            binding.description.text = rideModel.pickUpAddress + " \n" + rideModel.dropOffAddress
+//                            Glide.with(context).load(rideModel.driver.carPhoto).into(binding.carImage)
+                        }
+                    }
+                }
+                showDialog(false)
+            }
+
         }
 
 
@@ -341,14 +392,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
     }
 
 
-    fun finishRide(type: Int) {
+    fun updateRide(type: Int, state: Int)
+    {
 
         initializeDialog(getString(R.string.finishing_ride))
         showDialog(true)
 
         println("CurrentIdValue: ${currentRide.id}")
 
-        rideViewModel.finishRide(currentRide.id, 1).observe(this)
+        rideViewModel.updateRide(currentRide.id, state).observe(this)
         {
             if (it.equals("success")) {
                 if (type == 0)
@@ -365,7 +417,36 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
             showDialog(false)
         }
 
+    }
 
+    fun searchForRides()
+    {
+        binding.ridersSearchLayout.visibility = View.VISIBLE
+        binding.search.visibility = View.VISIBLE
+        binding.retry.visibility = View.GONE
+
+        driverViewModel.getRide(Helper.getUserId(context), 0).observe(this)
+        {
+            if (it  == null) {
+
+                binding.ridersSearchLayout.visibility = View.VISIBLE
+                binding.search.visibility = View.GONE
+                binding.retry.visibility = View.VISIBLE
+
+                Toast.makeText(context, "No Rides Found", Toast.LENGTH_SHORT).show()
+//                setPageState(0)
+            }
+            else
+            {
+                println("RideModelId: " + it.id)
+                binding.ridersSearchLayout.visibility = View.GONE
+                binding.commonLayout.visibility = View.VISIBLE
+                binding.selectRiderButton.visibility = View.VISIBLE
+                currentRide = it
+                setPageState(3)
+                binding.description.text = currentRide.rider.name + "\n" + currentRide.pickUpAddress + "\n" + currentRide.dropOffAddress
+            }
+        }
     }
 
 }

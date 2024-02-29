@@ -169,9 +169,9 @@ class ProfileActivity : AppCompatActivity() {
             if (it.equals("error")) {
                 Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
             } else {
-                binding.name.text = it.split(",")[0]
-                binding.description.text = it.split(",")[1]
-                Glide.with(context).load(it.split(",")[2]).into(binding.carImage)
+                binding.name.text = it.name
+                binding.description.text = it.carDescription
+                Glide.with(context).load(it.carPhoto).into(binding.carImage)
                 binding.type.text = "Driver"
             }
 

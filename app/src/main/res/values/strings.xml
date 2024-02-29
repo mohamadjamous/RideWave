@@ -59,5 +59,9 @@
     <string name="finish_ride">Finish Ride</string>
     <string name="selecting_driver">Selecting Driver</string>
     <string name="finishing_ride">Finishing Ride</string>
+    <string name="looking_for_riders">Looking For Drivers ...</string>
+    <string name="retry">Retry</string>
+    <string name="no_rides">"No Riders Available Currently "</string>
+    <string name="pick_up_rider">Pick up rider</string>
 
 </resources>

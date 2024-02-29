@@ -519,7 +519,6 @@ class RiderViewModel : ViewModel() {
     {
         val mutableLiveData: MutableLiveData<List<DriverModel>> = MutableLiveData()
 
-
         FirebaseFirestore.getInstance().collection(Constants.DRIVERS_COLLECTION)
             .whereEqualTo("online", true)
             .get()
