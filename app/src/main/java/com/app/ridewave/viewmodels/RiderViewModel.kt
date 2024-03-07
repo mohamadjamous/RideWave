@@ -536,7 +536,7 @@ class RiderViewModel : ViewModel() {
                             documentSnapShot.getString("name").toString(),
                             "",
                             documentSnapShot.getString("carPhoto").toString(),
-                            documentSnapShot.getString("carDescription").toString()
+                            documentSnapShot.getString("carDescription").toString(), false
                         ))
 
                     }

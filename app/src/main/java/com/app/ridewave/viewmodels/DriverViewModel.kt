@@ -54,7 +54,7 @@ class DriverViewModel : ViewModel() {
 
                                 if (user != null) {
                                     val driverModel =
-                                        DriverModel(user.uid, name, email, carPhoto, carDescription)
+                                        DriverModel(user.uid, name, email, carPhoto, carDescription, true)
 
                                     // Create a user document in Firestore
                                     db.collection(Constants.DRIVERS_COLLECTION).add(driverModel)
@@ -82,7 +82,7 @@ class DriverViewModel : ViewModel() {
 
                     // The user exists
                     // Handle the error
-                    mutableLiveData.value = DriverModel("account_exists", "", "", "", "")
+                    mutableLiveData.value = DriverModel("account_exists", "", "", "", "", false)
                 }
             }
             .addOnFailureListener { exception ->
@@ -108,7 +108,7 @@ class DriverViewModel : ViewModel() {
             .addOnSuccessListener {
 
                 var documentSnapshot: DocumentSnapshot? = null
-                if (it.equals(null)) {
+                if (it.equals(null) || it.documents.size == 0) {
                     mutableLiveData.value = null
                 } else {
                     documentSnapshot = it.documents[0]
@@ -201,11 +201,7 @@ class DriverViewModel : ViewModel() {
         return mutableLiveData
     }
 
-    fun updateFirebaseUserFieldById(
-        userId: String,
-        field: String,
-        value: Any
-    ): MutableLiveData<String> {
+    fun updateFirebaseUserFieldById(userId: String, field: String, value: Any): MutableLiveData<String> {
         val mutableLiveData: MutableLiveData<String> = MutableLiveData()
 
         val user = FirebaseAuth.getInstance().currentUser

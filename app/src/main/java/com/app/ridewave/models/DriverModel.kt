@@ -1,6 +1,6 @@
 package com.app.ridewave.models
 
-data class DriverModel (val uid: String,var name: String, var emailAddress : String, var carPhoto : String, var carDescription: String )
+data class DriverModel (val uid: String,var name: String, var emailAddress : String, var carPhoto : String, var carDescription: String , var online: Boolean)
 {
-    constructor() : this("","","","","")
+    constructor() : this("","","","","", false)
 }

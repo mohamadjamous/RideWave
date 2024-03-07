@@ -320,7 +320,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
         showDialog(true)
 
         //rider
-        if (userType == "0") {
+        if (userType == "0")
+        {
             binding.ridersSearchLayout.visibility = View.GONE
             riderViewModel.getAccountInfo(id).observe(this)
             {
@@ -346,8 +347,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, SelectDriverInterf
                 }
                 showDialog(false)
             }
-        } else {
-
+        } else
+        {
             driverViewModel.getAccountInfo(id).observe(this)
             {
                 if (it.equals(null)) {

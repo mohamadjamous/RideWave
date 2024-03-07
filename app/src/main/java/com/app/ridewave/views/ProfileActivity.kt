@@ -40,7 +40,6 @@ class ProfileActivity : AppCompatActivity() {
     private val REQUEST_SELECT_IMAGE_FROM_GALLERY: Int = 10
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -53,6 +52,28 @@ class ProfileActivity : AppCompatActivity() {
         val userType = Helper.getUserType(context)
         println("UserId: $userId")
         println("UserType: $userType")
+
+        binding.activeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+
+            driverViewModel.updateFirebaseUserFieldById(userId, "online", isChecked)
+                .observe(this) {
+                    if (it.equals("success")) {
+
+                        if (binding.activeSwitch.isChecked) {
+                            binding.activeSwitch.text = "active"
+                        } else {
+                            binding.activeSwitch.text = "inactive"
+                        }
+                        Toast.makeText(context, "Updated", Toast.LENGTH_SHORT).show()
+
+                    } else {
+                        Toast.makeText(context, "Error Update Status", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+
+
+        }
 
 
         binding.back.setOnClickListener { finish() }
@@ -68,7 +89,6 @@ class ProfileActivity : AppCompatActivity() {
                 deleteDriver(userId)
 
 
-
         }
 
         //rider
@@ -78,7 +98,7 @@ class ProfileActivity : AppCompatActivity() {
         else
             getDriverAccount(userId)
 
-        binding.carImage.setOnClickListener{
+        binding.carImage.setOnClickListener {
             showImagePickerDialog()
         }
 
@@ -86,56 +106,53 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun deleteDriver(userId: String) {
 
-            showYesNoDialog(context, "Are you sure you want to delete your account?", {
-                // Delete the item
-                initializeDialog(getString(R.string.deleting_account))
-                showDialog(true)
+        showYesNoDialog(context, "Are you sure you want to delete your account?", {
+            // Delete the item
+            initializeDialog(getString(R.string.deleting_account))
+            showDialog(true)
 
-                driverViewModel.deleteDriverAccount(userId).observe(this)
-                {
-                    if (it.equals("error")) {
-                        Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-                    }else
-                    {
-                        Helper.deleteUserIdFromSharedPreferences(context)
-                        Helper.restart(this)
-                    }
-                    showDialog(false)
-
+            driverViewModel.deleteDriverAccount(userId).observe(this)
+            {
+                if (it.equals("error")) {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                } else {
+                    Helper.deleteUserIdFromSharedPreferences(context)
+                    Helper.restart(this)
                 }
+                showDialog(false)
 
-            }, {
-                // Do nothing
-                deleteDialog.dismiss()
-            })
+            }
+
+        }, {
+            // Do nothing
+            deleteDialog.dismiss()
+        })
 
 
-        }
+    }
 
-    fun deleteRider(id:String)
-     {
+    fun deleteRider(id: String) {
 
-         showYesNoDialog(context, "Are you sure you want to delete your account?", {
-             // Delete the item
-             initializeDialog(getString(R.string.deleting_account))
+        showYesNoDialog(context, "Are you sure you want to delete your account?", {
+            // Delete the item
+            initializeDialog(getString(R.string.deleting_account))
 
-             riderViewModel.deleteRiderAccount(id).observe(this)
-             {
-                 if (it.equals("error")) {
-                     Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-                 }else
-                 {
-                     Helper.deleteUserIdFromSharedPreferences(context)
-                     Helper.restart(this)
-                 }
-                 showDialog(false)
+            riderViewModel.deleteRiderAccount(id).observe(this)
+            {
+                if (it.equals("error")) {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                } else {
+                    Helper.deleteUserIdFromSharedPreferences(context)
+                    Helper.restart(this)
+                }
+                showDialog(false)
 
-             }
+            }
 
-         }, {
-             // Do nothing
-             deleteDialog.dismiss()
-         })
+        }, {
+            // Do nothing
+            deleteDialog.dismiss()
+        })
 
 
     }
@@ -171,6 +188,8 @@ class ProfileActivity : AppCompatActivity() {
             } else {
                 binding.name.text = it.name
                 binding.description.text = it.carDescription
+                binding.activeSwitch.text = if (it.online) "active" else "inactive"
+                binding.activeSwitch.isChecked = it.online
                 Glide.with(context).load(it.carPhoto).into(binding.carImage)
                 binding.type.text = "Driver"
             }
@@ -204,9 +223,12 @@ class ProfileActivity : AppCompatActivity() {
     }
 
 
-
-
-    fun showYesNoDialog(context: Context, message: String, onYesClick: () -> Unit, onNoClick: () -> Unit ){
+    fun showYesNoDialog(
+        context: Context,
+        message: String,
+        onYesClick: () -> Unit,
+        onNoClick: () -> Unit
+    ) {
         val builder = AlertDialog.Builder(context)
         builder.setMessage(message)
             .setPositiveButton("Yes") { _, _ ->
@@ -220,7 +242,6 @@ class ProfileActivity : AppCompatActivity() {
         deleteDialog = builder.create()
 
     }
-
 
 
     /////// uploading photo ////////
@@ -284,17 +305,23 @@ class ProfileActivity : AppCompatActivity() {
                     taskSnapshot.storage.downloadUrl.addOnSuccessListener {
                         val imageUrl = it.toString()
                         carPhoto = imageUrl
-                        driverViewModel.updateFirebaseUserFieldById( userId, "carPhoto", carPhoto)
+                        driverViewModel.updateFirebaseUserFieldById(userId, "carPhoto", carPhoto)
                             .observe(this)
                             { it ->
-                                if (it.equals("success"))
-                                {
+                                if (it.equals("success")) {
                                     binding.progressBar.visibility = View.GONE
-                                    Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT)
-                                }else
-                                {
+                                    Toast.makeText(
+                                        this,
+                                        "Image uploaded successfully",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                } else {
                                     binding.progressBar.visibility = View.GONE
-                                    Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT)
+                                    Toast.makeText(
+                                        this,
+                                        "Failed to upload image",
+                                        Toast.LENGTH_SHORT
+                                    )
                                 }
                             }
 
@@ -313,8 +340,6 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     /////// uploading photo ////////
-
-
 
 
 }

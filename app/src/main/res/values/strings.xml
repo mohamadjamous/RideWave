@@ -63,5 +63,7 @@
     <string name="retry">Retry</string>
     <string name="no_rides">"No Riders Available Currently "</string>
     <string name="pick_up_rider">Pick up rider</string>
+    <string name="set_active">Set Active</string>
+    <string name="active">active</string>
 
 </resources>
