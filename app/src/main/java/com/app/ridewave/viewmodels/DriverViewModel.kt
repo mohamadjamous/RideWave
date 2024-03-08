@@ -237,6 +237,9 @@ class DriverViewModel : ViewModel() {
 
     fun getRide(riderId: String, state: Int): MutableLiveData<RideModel> {
 
+        println("DriveId: $riderId")
+        println("DriveId: $state")
+
         val mutableLiveData = MutableLiveData<RideModel>()
         db.collection(Constants.RIDES_COLLECTION)
             .whereEqualTo("driver.uid", riderId)
@@ -247,34 +250,40 @@ class DriverViewModel : ViewModel() {
                 if (it == null) {
                     mutableLiveData.value = null
                 } else {
+                    println("State: 0")
                     if (it.documents.isNotEmpty()) {
+                        println("State: 1")
                         documentSnapshot = it.documents[0]
+                        if (documentSnapshot != null) {
+                            println("State: 3")
+                            val rideModel = RideModel()
+                            val riderModel = RiderModel()
+                            rideModel.id = documentSnapshot.getString("id").toString()
+                            riderModel.name = documentSnapshot.getString("rider.name").toString()
+                            rideModel.rider = riderModel
+                            val driver = DriverModel()
+                            driver.carPhoto = documentSnapshot.getString("driver.carPhoto").toString()
+                            driver.carDescription = documentSnapshot.getString("driver.carDescription").toString()
+                            rideModel.driver = driver
+                            rideModel.pickUpAddress = documentSnapshot.getString("pickUpAddress").toString()
+                            rideModel.dropOffAddress = documentSnapshot.getString("dropOffAddress").toString()
+
+                            mutableLiveData.value = rideModel
+                        } else {
+                            println("State: 5")
+                            mutableLiveData.value = null
+                        }
                     } else {
+                        println("State: 2")
                         mutableLiveData.value = null
                     }
 
                 }
 
-                if (documentSnapshot != null) {
-                    val rideModel = RideModel()
-                    val riderModel = RiderModel()
-                    rideModel.id = documentSnapshot.getString("id").toString()
-                    riderModel.name = documentSnapshot.getString("name").toString()
-                    rideModel.rider = riderModel
-                    val driver = DriverModel()
-                    driver.carPhoto = documentSnapshot.getString("driver.carPhoto").toString()
-                    driver.carDescription = documentSnapshot.getString("driver.carDescription").toString()
-                    rideModel.driver = driver
-                    rideModel.pickUpAddress = documentSnapshot.getString("pickUp.pickUpAddress").toString()
-                    rideModel.dropOffAddress = documentSnapshot.getString("dropOff.dropOffAddress").toString()
 
-                    mutableLiveData.value = rideModel
-                } else {
-
-                    mutableLiveData.value = null
-                }
 
             }.addOnFailureListener {
+                println("State: 6")
                 println("ErrorMessage: ${it.message}")
                 mutableLiveData.value = null
             }

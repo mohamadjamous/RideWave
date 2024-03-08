@@ -57,8 +57,8 @@ class RideViewModel : ViewModel() {
                 rideModel.id = documentSnapshot.getString("id").toString()
                 val driver = DriverModel()
                 driver.carPhoto = documentSnapshot.getString("driver.carPhoto").toString()
-                driver.carDescription =
-                    documentSnapshot.getString("driver.carDescription").toString()
+                driver.carDescription = documentSnapshot.getString("driver.carDescription").toString()
+                driver.name = documentSnapshot.getString("driver.name").toString()
                 rideModel.driver = driver
 
                 mutableLiveData.value = rideModel

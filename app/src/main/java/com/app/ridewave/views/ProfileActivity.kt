@@ -161,6 +161,7 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.vehicleInfo.visibility = android.view.View.GONE
         binding.progressBar.visibility = android.view.View.VISIBLE
+        binding.activeSwitch.visibility = android.view.View.GONE
 
         riderViewModel.getAccountInfo(userId).observe(this)
         {
@@ -180,6 +181,7 @@ class ProfileActivity : AppCompatActivity() {
     fun getDriverAccount(id: String) {
         binding.vehicleInfo.visibility = android.view.View.VISIBLE
         binding.progressBar.visibility = android.view.View.VISIBLE
+        binding.activeSwitch.visibility = View.VISIBLE
 
         driverViewModel.getAccountInfo(id).observe(this)
         {
