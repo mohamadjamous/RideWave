@@ -145,7 +145,7 @@ class DriverSignupActivity : AppCompatActivity() {
                     } else {
 
                         Helper.saveUserId(it.uid, "driver", context)
-                        startActivity(Intent(this, HomeActivity::class.java))
+                        startActivity(Intent(this, RiderDashboard::class.java))
                         finish()
                     }
                 } else {

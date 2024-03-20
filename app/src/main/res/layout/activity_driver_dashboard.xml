@@ -86,6 +86,36 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/retry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/no_rides"
+                    android:textSize="25sp" />
+
+                <Button
+                    android:id="@+id/retry_button"
+                    style="@style/greenButtonStyle"
+                    android:layout_width="100dp"
+                    android:layout_height="55dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="@string/retry" />
+
+            </LinearLayout>
+
 
         </LinearLayout>
 
@@ -101,14 +131,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cardView">
 
-
-            <fragment
-                android:id="@+id/map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.2"
-                tools:context=".MapsActivity" />
 
 
             <androidx.cardview.widget.CardView
@@ -206,83 +228,18 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/driver_search_layout"
+
+            <LinearLayout
+                    android:id="@+id/select_rider_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+
                     android:orientation="vertical">
 
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="20dp"
-                        android:gravity="center_vertical">
-
-
-                        <TextView
-                            android:id="@+id/label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginTop="20dp"
-                            android:text="@string/destination"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:id="@+id/destination"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/cancel"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginTop="10dp"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            tools:text="Template Gym, 10 street, building 32" />
-
-                        <Button
-                            android:id="@+id/cancel"
-                            style="@style/redButtonStyle"
-                            android:layout_width="100dp"
-                            android:layout_height="40dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:gravity="center"
-                            android:text="@string/cancel" />
-
-
-                    </RelativeLayout>
-
-
-                    <LinearLayout
-                        android:id="@+id/progress_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-
-                        <ProgressBar
-                            android:id="@+id/progress_bar"
-                            android:layout_width="150dp"
-                            android:layout_height="150dp"
-                            android:layout_marginTop="20dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/looking_for_drivers"
-                            android:textSize="30sp" />
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                        android:id="@+id/select_driver_layout"
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
@@ -296,7 +253,9 @@
                             android:id="@+id/vehicle_info"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginTop="20dp"
                             android:gravity="left|start"
                             android:orientation="horizontal"
                             android:padding="10dp">
@@ -334,11 +293,21 @@
 
 
                                 <TextView
+                                    android:id="@+id/rider_name"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    tools:text="Rider Name" />
+
+                                <TextView
                                     android:id="@+id/description"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="10dp"
-                                    tools:text="@string/upload_car_image" />
+                                    tools:text="pick up destination \n \n drop down destination"
+                                    />
 
 
                             </LinearLayout>
@@ -355,6 +324,7 @@
                         style="@style/greenButtonStyle"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"
                         android:layout_marginEnd="20dp"
@@ -364,16 +334,22 @@
                         android:gravity="start|center_vertical"
                         android:text="@string/pick_up_rider" />
 
-                    <TextView
-                        android:id="@+id/finish_ride"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginTop="20dp"
-                        android:text="@string/finish_ride"
-                        android:textColor="@color/green"
-                        android:textSize="16sp" />
+                    <Button
+                        android:id="@+id/cancel"
+                        style="@style/redButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:gravity="center"
+                        android:text="@string/cancel" />
+
+
 
                     <LinearLayout
                         android:id="@+id/arrived_layout"
@@ -412,6 +388,28 @@
                     </LinearLayout>
 
 
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/progress_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:orientation="vertical">
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginTop="20dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/looking_for_drivers"
+                        android:textSize="30sp" />
                 </LinearLayout>
 
 

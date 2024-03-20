@@ -75,7 +75,7 @@ class LoginActivity : AppCompatActivity() {
         println("UserIdValue: " + Helper.getUserId(context))
         println("UserIdValue: " + Helper.getUserId(context).length)
         if (Helper.getUserId(context) != "null") {
-            startActivity(Intent(this, HomeActivity::class.java))
+            startActivity(Intent(this, RiderDashboard::class.java))
             finish()
         }
 
@@ -634,7 +634,7 @@ class LoginActivity : AppCompatActivity() {
 
     fun saveUser(id: String, type:String) {
         Helper.saveUserId(id, type, context)
-        startActivity(Intent(this, HomeActivity::class.java))
+        startActivity(Intent(this, RiderDashboard::class.java))
         finish()
     }
 
