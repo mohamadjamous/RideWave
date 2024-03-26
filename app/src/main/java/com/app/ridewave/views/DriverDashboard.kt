@@ -64,8 +64,7 @@ class DriverDashboard : AppCompatActivity() {
                         binding.cancel.visibility = View.GONE
                         currentRide = rideModel
                         binding.riderName.text = currentRide.rider.name
-                        binding.description.text =
-                            currentRide.pickUpAddress + "\n" + currentRide.dropOffAddress
+                        binding.description.text = currentRide.pickUpAddress + "\n" + currentRide.dropOffAddress
                     }
                 }
             }
@@ -82,15 +81,18 @@ class DriverDashboard : AppCompatActivity() {
 
 
     fun searchForRides() {
-        binding.progressLayout.visibility = View.VISIBLE
+
+        if (binding.progressLayout.visibility == View.GONE)
+        {
+            binding.progressLayout.visibility = View.VISIBLE
+        }
+
         // search for rides
         driverViewModel.getRide(Helper.getUserId(context), 0).observe(this)
         {
             if (it == null) {
 
                 //keep searching for rides
-                Toast.makeText(context, "No Ride Found", Toast.LENGTH_SHORT).show()
-                binding.progressLayout.visibility = View.GONE
                 searchForRides()
 
             } else {
@@ -122,11 +124,13 @@ class DriverDashboard : AppCompatActivity() {
         rideViewModel.updateRide(currentRide.id, state).observe(this)
         {
             if (it.equals("success")) {
-                if (type == 0) {
+
+                if (type == 1) {
+                    binding.selectRiderLayout.visibility = View.GONE
                     searchForRides()
                 } else {
                     binding.cancel.visibility = View.GONE
-                    binding.selectRiderLayout.visibility = View.GONE
+                    binding.selectRiderButton.visibility = View.GONE
                 }
 
             } else {

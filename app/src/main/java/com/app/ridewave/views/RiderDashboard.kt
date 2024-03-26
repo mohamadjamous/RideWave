@@ -352,6 +352,7 @@ class RiderDashboard : AppCompatActivity(), OnMapReadyCallback, SelectDriverInte
             bundle.putString("id", id)
             intent.putExtras(bundle)
             startActivity(intent)
+            finish()
 
 
         }
